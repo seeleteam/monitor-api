@@ -129,14 +129,12 @@ func init() {
 	} else {
 		appConfigPath = configPath
 	}
-
 	if err = parseConfig(appConfigPath); err != nil {
 		panic(err)
 	}
 }
 
 func newSeeleConfig() *Config {
-	appName := "monitor-api"
 	defaultAddr := ":9999"
 
 	defaultDelayReConnTime := 5 * time.Second
@@ -149,7 +147,7 @@ func newSeeleConfig() *Config {
 	defaultWsRouter := "/api"
 
 	return &Config{
-		AppName:      appName,
+		AppName:      APPName,
 		RecoverPanic: true,
 		RunMode:      DEV,
 		ServerName:   "monitor-api:" + VERSION,
@@ -166,7 +164,7 @@ func newSeeleConfig() *Config {
 			EngineConfig: &EngineConfig{
 				DisableConsoleColor: false,
 				WriteLog:            false,
-				LogFile:             appName + ".log",
+				LogFile:             APPName + ".log",
 				LimitConnection:     0, // no limits the conn per timeUnit
 			},
 			EnableWebSocket: false,
@@ -217,12 +215,28 @@ func assignConfig(ac config.Configure) error {
 			SeeleConfig.RunMode = defaultEnv["run_mode"]
 		}
 	}
+
+	// APPName load from default, default section, real section
+	currentAppName := APPName
+	if defaultSection, err := ac.GetSection("default"); err == nil {
+		if len(defaultSection["app_name"]) != 0 {
+			currentAppName = defaultSection["app_name"]
+		}
+	}
+
 	// first use default section, and use real mode to override
 	currentSection, err := ac.GetSection(SeeleConfig.RunMode)
 	if err != nil {
 		SeeleConfig.RunMode = DEV
 		currentSection, _ = ac.GetSection(SeeleConfig.RunMode)
 	}
+	// real APPName
+	if currentSection["app_name"] != "" {
+		currentAppName = currentSection["app_name"]
+	}
+	SeeleConfig.AppName = currentAppName
+	APPName = currentAppName
+
 	currentServerConfig := SeeleConfig.ServerConfig
 	if currentSection["addr"] != "" {
 		currentServerConfig.Addr = currentSection["addr"]

@@ -33,7 +33,7 @@ type Service struct {
 	node     string // Name of the node to display on the monitoring page
 	pass     string // Password to authorize access to the monitoring page
 	host     string // Remote address of the monitoring service
-	port     int
+	port     int    // monitor api port
 	wsRouter string // websocket base path
 	wsPath   string // websocket path ex: {host:port}+{wsRouter}
 
@@ -51,7 +51,7 @@ type Service struct {
 
 // New returns a monitoring service ready for stats reporting.
 func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
-	// Parse the rpc connection url
+	// Parse the web socket connection url
 	if url == "" {
 		//addr format should be host:port!
 		url = config.SeeleConfig.ServerConfig.Addr
@@ -226,23 +226,23 @@ func (s *Service) readLoop(conn *websocket.Conn) {
 	}
 }
 
-// NodeInfo is the collection of metainformation about a node that is displayed
+// nodeInfo is the collection of metainformation about a node that is displayed
 // on the monitoring page.
-type NodeInfo struct {
-	Name     string `json:"name"`
-	Node     string `json:"node"`
-	Port     int    `json:"port"`
-	Network  uint64 `json:"net"`
-	Protocol string `json:"protocol"`
-	API      string `json:"api"`
-	Os       string `json:"os"`
-	OsVer    string `json:"os_v"`
-	Client   string `json:"client"`
-	History  bool   `json:"canUpdateHistory"`
+type nodeInfo struct {
+	Name        string `json:"name"`
+	Node        string `json:"node"`
+	Port        int    `json:"port"` // the monitor api client port, can overwrite use monitor api client api port
+	NetVersion  uint64 `json:"netVersion"`
+	Protocol    string `json:"protocol"`
+	API         string `json:"api"`
+	Os          string `json:"os"`
+	OsVer       string `json:"os_v"`
+	Client      string `json:"client"`
+	NodeVersion string `json:"nodeVersion"` // the monitor api client version
 }
 
-// NodeStats is the information about the local node.
-type NodeStats struct {
+// nodeStats is the information about the local node.
+type nodeStats struct {
 	Active   bool `json:"active"`
 	Syncing  bool `json:"syncing"`
 	Mining   bool `json:"mining"`
@@ -253,12 +253,12 @@ type NodeStats struct {
 }
 
 type apiCurrentBlock struct {
-	HeadHash  string   `json:"headHash"`
-	Height    uint64   `json:"height"`
-	Timestamp *big.Int `json:"timestamp"`
-	Difficult *big.Int `json:"difficult"`
-	Creater   string   `json:"miner"`
-	TxCount   int      `json:"txcount"`
+	HeadHash   string   `json:"headHash"`
+	Height     uint64   `json:"height"`
+	Timestamp  *big.Int `json:"timestamp"`
+	Difficulty *big.Int `json:"difficulty"`
+	Creater    string   `json:"miner"`
+	TxCount    int      `json:"txcount"`
 }
 
 // report collects all possible data to report and send it to the stats server.
@@ -372,14 +372,25 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 		s.detectErrorAndReport(conn)
 		return nil, err
 	}
-	info.API = config.VERSION
+	nodeInfoData := nodeInfo{
+		Name:        config.APPName,
+		NodeVersion: config.VERSION,
+		Node:        info.Node,
+		Port:        s.port,
+		NetVersion:  info.NetVersion,
+		Protocol:    info.Protocol,
+		Os:          info.Os,
+		OsVer:       info.OsVer,
+		Client:      info.Client,
+		API:         info.Protocol,
+	}
 
 	// update netVersion
 	s.currentNetVersion = info.NetVersion
 
 	nodeInfo := map[string]interface{}{
 		"id":   s.node,
-		"info": info,
+		"info": nodeInfoData,
 	}
 
 	return nodeInfo, nil
@@ -418,12 +429,12 @@ func (s *Service) getCurrentBlockInfo(conn *websocket.Conn) (map[string]interfac
 	blockInfo := map[string]interface{}{
 		"id": s.node,
 		"block": &apiCurrentBlock{
-			HeadHash:  block.HeadHash,
-			Height:    block.Height,
-			Timestamp: block.Timestamp,
-			Difficult: block.Difficult,
-			Creater:   block.Creator,
-			TxCount:   block.TxCount,
+			HeadHash:   block.HeadHash,
+			Height:     block.Height,
+			Timestamp:  block.Timestamp,
+			Difficulty: block.Difficulty,
+			Creater:    block.Creator,
+			TxCount:    block.TxCount,
 		},
 	}
 	s.currentBlockHeight = block.Height
