@@ -9,9 +9,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
+var (
+	// APPName monitor app name
+	APPName = "monitor-api"
+
 	// VERSION represent seele monitor api version.
 	VERSION = "0.1.0"
+)
+
+const (
 
 	// DEV is for develop
 	DEV = "dev"

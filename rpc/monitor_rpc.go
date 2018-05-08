@@ -37,12 +37,12 @@ func (rpc *MonitorRPC) CurrentBlock() (currentBlock *CurrentBlock, err error) {
 	height := uint64(rpcOutputBlock["height"].(float64))
 
 	currentBlock = &CurrentBlock{
-		HeadHash:  rpcOutputBlock["hash"].(string),
-		Height:    height,
-		Timestamp: big.NewInt(timestamp),
-		Difficult: big.NewInt(difficulty),
-		Creator:   rpcOutputBlock["creator"].(string),
-		TxCount:   len(rpcOutputBlock["transactions"].([]interface{})),
+		HeadHash:   rpcOutputBlock["hash"].(string),
+		Height:     height,
+		Timestamp:  big.NewInt(timestamp),
+		Difficulty: big.NewInt(difficulty),
+		Creator:    rpcOutputBlock["creator"].(string),
+		TxCount:    len(rpcOutputBlock["transactions"].([]interface{})),
 	}
 	return currentBlock, err
 }

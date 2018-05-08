@@ -37,12 +37,12 @@ type NodeStats struct {
 
 // CurrentBlock is the informations about the best block
 type CurrentBlock struct {
-	HeadHash  string   `json:"headHash"`
-	Height    uint64   `json:"height"`
-	Timestamp *big.Int `json:"timestamp"`
-	Difficult *big.Int `json:"difficult"`
-	Creator   string   `json:"creator"`
-	TxCount   int      `json:"txcount"`
+	HeadHash   string   `json:"headHash"`
+	Height     uint64   `json:"height"`
+	Timestamp  *big.Int `json:"timestamp"`
+	Difficulty *big.Int `json:"difficulty"`
+	Creator    string   `json:"creator"`
+	TxCount    int      `json:"txcount"`
 }
 
 // MinerInfo miner simple info

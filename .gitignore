@@ -32,6 +32,8 @@ _testmain.go
 
 monitor-api-logs/
 
+*.test
+
 .idea
 
 .vscode
