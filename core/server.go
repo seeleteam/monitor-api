@@ -7,9 +7,7 @@ package core
 
 import (
 	"net/http"
-	"time"
 
-	"github.com/fvbock/endless"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/seeleteam/monitor-api/config"
@@ -107,23 +105,13 @@ func (sl *MonitorServer) NewServerTLS(server *http.Server, certFile string, keyF
 // RunServer run our server in a goroutine so that it doesn't block.
 func (sl *MonitorServer) RunServer() {
 	sl.G.Go(func() error {
-		if !config.SeeleConfig.ServerConfig.Graceful {
-			return http.ListenAndServe(sl.Server.Addr, sl.Server.Handler)
-		}
-		// Graceful restart or stop we use fvbock/endless to replace the default ListenAndServe
-		endless.DefaultHammerTime = defaultHammerTime * time.Second
-		return endless.ListenAndServe(sl.Server.Addr, sl.Server.Handler)
+		return http.ListenAndServe(sl.Server.Addr, sl.Server.Handler)
 	})
 }
 
 // RunServerTLS run our server with tls in a goroutine so that it doesn't block.
 func (sl *MonitorServer) RunServerTLS() {
 	sl.G.Go(func() error {
-		if !config.SeeleConfig.ServerConfig.Graceful {
-			return http.ListenAndServeTLS(sl.Server.Addr, sl.CertFile, sl.KeyFile, sl.Server.Handler)
-		}
-		// Graceful restart or stop we use fvbock/endless to replace the default ListenAndServeTLS
-		endless.DefaultHammerTime = defaultHammerTime * time.Second
-		return endless.ListenAndServeTLS(sl.Server.Addr, sl.CertFile, sl.KeyFile, sl.Server.Handler)
+		return http.ListenAndServeTLS(sl.Server.Addr, sl.CertFile, sl.KeyFile, sl.Server.Handler)
 	})
 }

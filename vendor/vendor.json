@@ -16,12 +16,6 @@
 			"revisionTime": "2018-04-20T07:00:58Z"
 		},
 		{
-			"checksumSHA1": "q9bsaNA05ney3eon3nKAE+eLwO4=",
-			"path": "github.com/fvbock/endless",
-			"revision": "447134032cb6a86814f570257390a379982dfc61",
-			"revisionTime": "2017-01-09T17:00:31Z"
-		},
-		{
 			"checksumSHA1": "Cmfv2KnhEhnmmdn0gZDDTH3BZxM=",
 			"path": "github.com/gin-contrib/sse",
 			"revision": "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae",
