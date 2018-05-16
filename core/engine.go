@@ -34,6 +34,9 @@ func (config *EngineConfig) initEngineConfig() *gin.Engine {
 		gin.DisableConsoleColor()
 	}
 
+	// set gin mode release(hide handlers info)
+	gin.SetMode(gin.ReleaseMode)
+
 	e := gin.New()
 
 	// use logs middleware logurs
@@ -55,6 +58,7 @@ func (config *EngineConfig) initEngineConfig() *gin.Engine {
 // Init engine init
 func (config *EngineConfig) Init() http.Handler {
 	e := config.initEngineConfig()
+
 	// here init the routers, need refactor
 	routers.InitRouters(e)
 	return e
