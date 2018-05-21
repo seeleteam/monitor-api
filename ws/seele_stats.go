@@ -507,13 +507,19 @@ func (s *Service) reportAllNodeInfo(conn *websocket.Conn) error {
 }
 
 func (s *Service) getCoinBase(conn *websocket.Conn) (string, error) {
-	minerInfo, err := s.rpc.GetInfo()
+	info, err := s.rpc.GetInfo()
 	if err != nil {
 		logs.Error("rpc getCoinBase error %v", err)
 		s.detectErrorAndReport(conn)
 		return "", err
 	}
-	return minerInfo.Coinbase.ToHex(), nil
+	coinBase := info["Coinbase"]
+	v, ok := coinBase.(string)
+	if !ok {
+		return "", errors.New("coinBase error")
+	}
+
+	return v, nil
 }
 
 // detectErrorAndReport detect the error and report to monitor
