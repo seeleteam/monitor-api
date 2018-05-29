@@ -48,7 +48,10 @@ func (rpc *MonitorRPC) CurrentBlock() (currentBlock *CurrentBlock, err error) {
 }
 
 // GetInfo gets the account address that mining rewards will be send to.
-func (rpc *MonitorRPC) GetInfo() (minerInfo *MinerInfo, err error) {
-	err = rpc.call("seele.GetInfo", nil, &minerInfo)
-	return minerInfo, err
+func (rpc *MonitorRPC) GetInfo() (result map[string]interface{}, err error) {
+	err = rpc.call("seele.GetInfo", nil, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

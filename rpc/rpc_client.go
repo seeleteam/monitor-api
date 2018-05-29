@@ -6,8 +6,6 @@
 package rpc
 
 import (
-	"net/rpc/jsonrpc"
-
 	"github.com/seeleteam/monitor-api/core/logs"
 )
 
@@ -34,12 +32,13 @@ func newRPC(url string, options ...func(rpc *MonitorRPC)) *MonitorRPC {
 	return rpc
 }
 
+// NewSeeleRPC create new json_rpc
 func NewSeeleRPC(url string, options ...func(rpc *MonitorRPC)) *MonitorRPC {
 	return newRPC(url, options...)
 }
 
 func (rpc *MonitorRPC) call(serviceMethod string, args interface{}, reply interface{}) error {
-	conn, err := jsonrpc.Dial(rpc.scheme, rpc.url)
+	conn, err := Dial(rpc.scheme, rpc.url)
 	defer func() {
 		if conn != nil {
 			conn.Close()
