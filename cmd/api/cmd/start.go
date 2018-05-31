@@ -35,28 +35,13 @@ var startCmd = &cobra.Command{
 
 		// config init
 		config.Init(*configFile)
+
 		// init server, if modify the config should write above this line
 		server.Start(&g)
 
 		if err := g.Wait(); err != nil {
 			log.Fatal(err)
 		}
-
-		// apiConfig, err := LoadConfigFromFile(*apiConfigFile)
-		// if err != nil {
-		// 	fmt.Printf("reading the config file failed: %s\n", err.Error())
-		// 	return
-		// }
-
-		// apiServer, err := api.New(apiConfig)
-		// if err != nil {
-		// 	fmt.Println(err.Error())
-		// 	return
-		// }
-		// if err := apiServer.Start(); err != nil {
-		// 	fmt.Println(err.Error())
-		// 	return
-		// }
 
 		wg.Add(1)
 		wg.Wait()
