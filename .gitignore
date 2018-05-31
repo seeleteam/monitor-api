@@ -28,8 +28,6 @@ _testmain.go
 *.log.*
 *.logs.*
 
-.monitor-log
-
 monitor-api-logs/
 
 *.test
@@ -43,8 +41,8 @@ monitor-api-logs/
 #!vendor/vendor.json
 #!vendor/README.md
 bin/
-buildLog/
+build/
 output/
 
-monitor-api-package/
-monitor-api-package.tar.gz
+monitor-api.exe
+monitor-api
