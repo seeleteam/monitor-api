@@ -38,8 +38,6 @@ type ServerConfig struct {
 	Addr     string // format must be like ip:port, :port, domain or domain:port
 	ErrorLog *log.Logger
 	// Server config
-	DefaultHammerTime time.Duration
-	Graceful          bool // Graceful means use graceful module to stop the server
 
 	Handler           http.Handler // need config the routers and filter
 	IdleTimeout       time.Duration
@@ -106,30 +104,11 @@ var (
 	SeeleConfig *Config
 )
 
-func init() {
+// Init init the config
+func Init(configFile string) {
 	SeeleConfig = newSeeleConfig()
 	var err error
-	if AppPath, err = filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
-		panic(err)
-	}
-	workPath, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	configPath := os.Getenv("MONITOR_API_CONFIG_PATH")
-	if configPath == "" {
-		appConfigPath = filepath.Join(workPath, "conf", "../conf/app.conf")
-		if !utils.FileExists(appConfigPath) {
-			appConfigPath = filepath.Join(AppPath, "conf", "../app.conf")
-			if !utils.FileExists(appConfigPath) {
-				AppConfig = &MonitorAppConfig{innerConfig: config.NewFakeConfig()}
-				return
-			}
-		}
-	} else {
-		appConfigPath = configPath
-	}
-	if err = parseConfig(appConfigPath); err != nil {
+	if err = parseConfig(configFile); err != nil {
 		panic(err)
 	}
 }
@@ -153,8 +132,6 @@ func newSeeleConfig() *Config {
 		ServerName:   "monitor-api:" + VERSION,
 		ServerConfig: &ServerConfig{
 			Addr:              defaultAddr,
-			DefaultHammerTime: 45 * time.Second, // if Graceful is true, this will work
-			Graceful:          false,
 			IdleTimeout:       0,
 			LogLevel:          defaultLogLevel,
 			MaxHeaderBytes:    1 << 20, //1MB
@@ -272,12 +249,6 @@ func assignConfig(ac config.Configure) error {
 		}
 	}
 
-	if currentSection["graceful"] != "" {
-		currentGraceful, err := strconv.ParseBool(currentSection["graceful"])
-		if err == nil {
-			currentServerConfig.Graceful = currentGraceful
-		}
-	}
 	if currentSection["loglevel"] != "" {
 		currentLogLevel, ok := LogLevelMap[currentSection["loglevel"]]
 		if !ok {
@@ -285,12 +256,7 @@ func assignConfig(ac config.Configure) error {
 		}
 		currentServerConfig.LogLevel = currentLogLevel
 	}
-	if currentSection["defaulthammertime "] != "" {
-		currentDefaultHammerTime, err := time.ParseDuration(currentSection["defaulthammertime"] + DefaultTimeUnit)
-		if err == nil {
-			currentServerConfig.DefaultHammerTime = currentDefaultHammerTime
-		}
-	}
+
 	if currentSection["enablewebsocket"] != "" {
 		currentEnableWebSocket, err := strconv.ParseBool(currentSection["enablewebsocket"])
 		if err == nil {

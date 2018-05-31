@@ -13,14 +13,17 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	config, err := NewConfig("ini", "../../conf/app.conf")
+	_, err := NewConfig("ini", "./testconfig/app.conf")
 	if err != nil {
 		assert.Errorf(t, err, "error occur %v", err)
 	}
-	fmt.Printf("config is %v\n", config)
-	appName := config.String("app_name")
-	fmt.Printf("appName is: %v\n", appName)
+}
 
+func TestNewConfigBad(t *testing.T) {
+	_, err := NewConfig("ini", "./testconfig/app-bad.conf")
+	if err == nil {
+		assert.Errorf(t, err, "error occur %v", err)
+	}
 }
 
 func TestRegister(t *testing.T) {
