@@ -6,7 +6,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"sync"
 
@@ -28,7 +27,7 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start the monitor-api server",
 	Long: `usage example:
-	   monitor-api.exe start -c config\app.conf -s config\shard.json
+	   monitor-api.exe start -c config\app.conf
 		start the monitor-api.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -36,14 +35,6 @@ var startCmd = &cobra.Command{
 
 		// config init
 		config.Init(*configFile)
-
-		shardConfig, err := GetConfigFromFile(*shardFile)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-
-		config.ShardMap = shardConfig
 
 		// init server, if modify the config should write above this line
 		server.Start(&g)
@@ -62,7 +53,4 @@ func init() {
 
 	configFile = startCmd.Flags().StringP("config", "c", "", "api config file (required)")
 	startCmd.MarkFlagRequired("config")
-
-	shardFile = startCmd.Flags().StringP("shard", "s", "", "api shard config file (required)")
-	startCmd.MarkFlagRequired("shard")
 }

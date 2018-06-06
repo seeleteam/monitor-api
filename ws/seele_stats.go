@@ -34,7 +34,7 @@ type Service struct {
 	pass     string // Password to authorize access to the monitoring page
 	host     string // Remote address of the monitoring service
 	port     int    // monitor api port
-	shard    uint
+	shard    uint   // shard number
 	wsRouter string // websocket base path
 	wsPath   string // websocket path ex: {host:port}+{wsRouter}
 
@@ -60,8 +60,8 @@ func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
 	}
 	shard := info.Shard
 	websocketURL, ok := config.ShardMap[fmt.Sprintf("%v", shard)]
-	if !ok {
-		logs.Error("shard config error, shard %v not exist web socket url", shard)
+	if !ok || websocketURL == "" {
+		logs.Error("shard config error, shard %v exist error web socket url", shard)
 		return nil, err
 	}
 
@@ -517,10 +517,6 @@ func (s *Service) reportAllNodeInfo(conn *websocket.Conn) error {
 		return err
 	}
 
-	delete(info, "shard")
-	delete(block, "shard")
-	delete(stats, "shard")
-
 	allNodeInfo := map[string]interface{}{
 		"id":         s.node,
 		"info":       info["info"],
@@ -571,11 +567,11 @@ func (s *Service) reportServerError(conn *websocket.Conn) error {
 	nodeStats := map[string]interface{}{
 		"id": s.node,
 		"stats": map[string]interface{}{
-			"active":     false,
-			"syncing":    false,
-			"netVersion": s.currentNetVersion,
-			"shard":      s.shard,
+			"active":  false,
+			"syncing": false,
 		},
+		"netVersion": s.currentNetVersion,
+		"shard":      s.shard,
 	}
 	report := map[string][]interface{}{
 		"emit": {"stats", nodeStats},

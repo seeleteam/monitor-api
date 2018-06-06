@@ -35,7 +35,7 @@ cd monitor-api
 # generate the executable file
 make
 # execute the file
-build/monitor-api start -c <configfile> -s <shard file>
+build/monitor-api start -c <configfile>
 ```
 
 ## Config

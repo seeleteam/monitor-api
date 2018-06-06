@@ -7,7 +7,9 @@ package config
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -25,12 +27,13 @@ import (
 
 // Config is the main struct for SeeleConfig
 type Config struct {
-	AppName      string //Application name
-	RunMode      string //Running Mode: dev | release
-	RecoverFunc  func(*gin.Context)
-	RecoverPanic bool
-	ServerConfig *ServerConfig // server config
-	ServerName   string
+	AppName           string //Application name
+	MonitorConfigFile string
+	RunMode           string //Running Mode: dev | release
+	RecoverFunc       func(*gin.Context)
+	RecoverPanic      bool
+	ServerConfig      *ServerConfig // server config
+	ServerName        string
 }
 
 // ServerConfig define the parameters for running an HTTP server.
@@ -111,6 +114,14 @@ func Init(configFile string) {
 	if err = parseConfig(configFile); err != nil {
 		panic(err)
 	}
+	monitorConfigFile := SeeleConfig.MonitorConfigFile
+	shardConfig, err := GetConfigFromFile(monitorConfigFile)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	ShardMap = shardConfig
+
 }
 
 func newSeeleConfig() *Config {
@@ -195,11 +206,16 @@ func assignConfig(ac config.Configure) error {
 
 	// APPName load from default, default section, real section
 	currentAppName := APPName
+	monitorConfigFile := "monitor.json"
 	if defaultSection, err := ac.GetSection("default"); err == nil {
 		if len(defaultSection["app_name"]) != 0 {
 			currentAppName = defaultSection["app_name"]
 		}
+		if len(defaultSection["monitorconfigfile"]) != 0 {
+			monitorConfigFile = defaultSection["monitorconfigfile"]
+		}
 	}
+	SeeleConfig.MonitorConfigFile = monitorConfigFile
 
 	// first use default section, and use real mode to override
 	currentSection, err := ac.GetSection(SeeleConfig.RunMode)
@@ -540,4 +556,16 @@ func (b *MonitorAppConfig) GetSection(section string) (map[string]string, error)
 // SaveConfigFile save the config into file
 func (b *MonitorAppConfig) SaveConfigFile(filename string) error {
 	return b.innerConfig.SaveConfigFile(filename)
+}
+
+// GetConfigFromFile unmarshals the config from the given file
+func GetConfigFromFile(filepath string) (map[string]string, error) {
+	var config map[string]string
+	buff, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return config, err
+	}
+
+	err = json.Unmarshal(buff, &config)
+	return config, err
 }
