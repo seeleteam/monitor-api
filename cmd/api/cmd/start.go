@@ -18,7 +18,6 @@ import (
 
 var (
 	configFile *string
-	shardFile  *string
 	g          errgroup.Group
 )
 

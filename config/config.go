@@ -27,9 +27,9 @@ import (
 
 // Config is the main struct for SeeleConfig
 type Config struct {
-	AppName           string //Application name
-	MonitorConfigFile string
-	RunMode           string //Running Mode: dev | release
+	AppName           string // Application name
+	MonitorConfigFile string // monitor url file
+	RunMode           string // Running Mode: dev | release
 	RecoverFunc       func(*gin.Context)
 	RecoverPanic      bool
 	ServerConfig      *ServerConfig // server config

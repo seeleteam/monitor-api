@@ -59,8 +59,8 @@ func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
 		return nil, err
 	}
 	shard := info.Shard
-	websocketURL, ok := config.ShardMap[fmt.Sprintf("%v", shard)]
-	if !ok || websocketURL == "" {
+	websocketURL, _ := config.ShardMap[fmt.Sprintf("%v", shard)]
+	if websocketURL == "" {
 		logs.Error("shard config error, shard %v exist error web socket url", shard)
 		return nil, err
 	}
