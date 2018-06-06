@@ -24,6 +24,7 @@ type NodeInfo struct {
 	OsVer      string `json:"os_v"`
 	Client     string `json:"client"`
 	History    bool   `json:"canUpdateHistory"`
+	Shard      uint   `json:"shard"`
 }
 
 // NodeStats is the information about the local node.

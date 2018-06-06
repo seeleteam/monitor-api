@@ -15,6 +15,9 @@ var (
 
 	// VERSION represent seele monitor api version.
 	VERSION = "0.1.0"
+
+	// ShardMap shard:<websocket url>
+	ShardMap map[string]string
 )
 
 const (

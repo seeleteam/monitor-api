@@ -34,6 +34,7 @@ type Service struct {
 	pass     string // Password to authorize access to the monitoring page
 	host     string // Remote address of the monitoring service
 	port     int    // monitor api port
+	shard    uint
 	wsRouter string // websocket base path
 	wsPath   string // websocket path ex: {host:port}+{wsRouter}
 
@@ -46,11 +47,24 @@ type Service struct {
 	currentBlockHeight         uint64        // record the current block height, if rpc get the same block abort send
 	reportErrorAfterTimes      int           // report the error occur times (currentErrorTimes) when error occur over the special times
 	currentErrorTimes          int
-	currentNetVersion          uint64 // current net version
+	currentNetVersion          uint64 // current net version(netWorkId)
 }
 
 // New returns a monitoring service ready for stats reporting.
 func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
+	// first get RPC NodeInfo and according the Shard choose the ws path
+	info, err := rpc.NodeInfo()
+	if err != nil {
+		logs.Error("rpc getNodeInfo error %v", err)
+		return nil, err
+	}
+	shard := info.Shard
+	websocketURL, ok := config.ShardMap[fmt.Sprintf("%v", shard)]
+	if !ok {
+		logs.Error("shard config error, shard %v not exist web socket url", shard)
+		return nil, err
+	}
+
 	// Parse the web socket connection url
 	if url == "" {
 		//addr format should be host:port!
@@ -73,7 +87,8 @@ func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
 		logs.Error("parse url port %v error: %v", port, err)
 		return nil, err
 	}
-	wsPath := parts[0] + wsRouter
+	wsPath := fmt.Sprintf("%s%s", websocketURL, wsRouter)
+	logs.Debug("shard %v, wsPath is %v", shard, wsPath)
 	host := parts[0]
 
 	// name: INSTANCE_NAME || os.hostname()
@@ -88,6 +103,7 @@ func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
 		node:                       hostname,
 		host:                       host,
 		port:                       port,
+		shard:                      shard,
 		wsRouter:                   wsRouter,
 		wsPath:                     wsPath,
 		pongCh:                     make(chan struct{}),
@@ -96,6 +112,7 @@ func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
 		delayReConnTime:            currentWebSocketConfig.DelayReConnTime,
 		delaySendTime:              currentWebSocketConfig.DelaySendTime,
 		reportErrorAfterTimes:      currentWebSocketConfig.ReportErrorAfterTimes,
+		currentNetVersion:          info.NetVersion,
 	}, nil
 }
 
@@ -232,7 +249,6 @@ type nodeInfo struct {
 	Name        string `json:"name"`
 	Node        string `json:"node"`
 	Port        int    `json:"port"` // the monitor api client port, can overwrite use monitor api client api port
-	NetVersion  uint64 `json:"netVersion"`
 	Protocol    string `json:"protocol"`
 	API         string `json:"api"`
 	Os          string `json:"os"`
@@ -289,8 +305,10 @@ func (s *Service) reportLatency(conn *websocket.Conn) error {
 
 	report := map[string][]interface{}{
 		"emit": {"latency", map[string]interface{}{
-			"id":      s.node,
-			"latency": latency,
+			"id":         s.node,
+			"latency":    latency,
+			"netVersion": s.currentNetVersion,
+			"shard":      s.shard,
 		}},
 	}
 	// Send back the measured latency
@@ -341,6 +359,7 @@ func (s *Service) getLatency(conn *websocket.Conn) (string, error) {
 			"id":         s.node,
 			"clientTime": start.UnixNano() / 1000000,
 			"netVersion": s.currentNetVersion,
+			"shard":      s.shard,
 		}},
 	}
 	jsonReport, _ := json.Marshal(ping)
@@ -377,7 +396,6 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 		NodeVersion: config.VERSION,
 		Node:        info.Node,
 		Port:        s.port,
-		NetVersion:  info.NetVersion,
 		Protocol:    info.Protocol,
 		Os:          info.Os,
 		OsVer:       info.OsVer,
@@ -387,10 +405,13 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 
 	// update netVersion
 	s.currentNetVersion = info.NetVersion
+	s.shard = info.Shard
 
 	nodeInfo := map[string]interface{}{
-		"id":   s.node,
-		"info": nodeInfoData,
+		"id":         s.node,
+		"info":       nodeInfoData,
+		"netVersion": s.currentNetVersion,
+		"shard":      s.shard,
 	}
 
 	return nodeInfo, nil
@@ -404,8 +425,10 @@ func (s *Service) getNodeStats(conn *websocket.Conn) (map[string]interface{}, er
 		return nil, err
 	}
 	nodeStats := map[string]interface{}{
-		"id":    s.node,
-		"stats": stats,
+		"id":         s.node,
+		"stats":      stats,
+		"netVersion": s.currentNetVersion,
+		"shard":      s.shard,
 	}
 
 	return nodeStats, nil
@@ -436,6 +459,8 @@ func (s *Service) getCurrentBlockInfo(conn *websocket.Conn) (map[string]interfac
 			Creater:    block.Creator,
 			TxCount:    block.TxCount,
 		},
+		"netVersion": s.currentNetVersion,
+		"shard":      s.shard,
 	}
 	s.currentBlockHeight = block.Height
 	return blockInfo, nil
@@ -468,6 +493,7 @@ func (s *Service) reportCurrentBlockInfo(conn *websocket.Conn) error {
 
 // reportAllNodeInfo send this info to monitor, the first start conn or reconnect
 func (s *Service) reportAllNodeInfo(conn *websocket.Conn) error {
+	// nodeInfo must come first
 	info, err := s.getNodeInfo(conn)
 	if err != nil {
 		logs.Error("reportAllNodeInfo %v", err)
@@ -491,12 +517,18 @@ func (s *Service) reportAllNodeInfo(conn *websocket.Conn) error {
 		return err
 	}
 
+	delete(info, "shard")
+	delete(block, "shard")
+	delete(stats, "shard")
+
 	allNodeInfo := map[string]interface{}{
-		"id":      s.node,
-		"info":    info["info"],
-		"block":   block["block"],
-		"stats":   stats["stats"],
-		"latency": latency,
+		"id":         s.node,
+		"info":       info["info"],
+		"block":      block["block"],
+		"stats":      stats["stats"],
+		"latency":    latency,
+		"netVersion": s.currentNetVersion,
+		"shard":      s.shard,
 	}
 	report := map[string][]interface{}{
 		"emit": {"hello", allNodeInfo},
@@ -528,20 +560,21 @@ func (s *Service) detectErrorAndReport(conn *websocket.Conn) error {
 	if s.currentErrorTimes >= s.reportErrorAfterTimes {
 		logs.Error("conn error occur times: %v >= %v, will report error", s.currentErrorTimes, s.reportErrorAfterTimes)
 		s.currentErrorTimes = 0
-		return reportServerError(s.node, conn)
-	} else {
-		logs.Debug("conn error occur times: %v < %v", s.currentErrorTimes, s.reportErrorAfterTimes)
+		return s.reportServerError(conn)
 	}
+	logs.Debug("conn error occur times: %v < %v", s.currentErrorTimes, s.reportErrorAfterTimes)
 	return nil
 }
 
 // reportServerError report the error to monitor server
-func reportServerError(node string, conn *websocket.Conn) error {
+func (s *Service) reportServerError(conn *websocket.Conn) error {
 	nodeStats := map[string]interface{}{
-		"id": node,
+		"id": s.node,
 		"stats": map[string]interface{}{
-			"active":  false,
-			"syncing": false,
+			"active":     false,
+			"syncing":    false,
+			"netVersion": s.currentNetVersion,
+			"shard":      s.shard,
 		},
 	}
 	report := map[string][]interface{}{
