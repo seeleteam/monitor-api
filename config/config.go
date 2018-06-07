@@ -114,7 +114,11 @@ func Init(configFile string) {
 	if err = parseConfig(configFile); err != nil {
 		panic(err)
 	}
-	monitorConfigFile := SeeleConfig.MonitorConfigFile
+	var monitorConfigFile string
+	if monitorConfigFile = os.Getenv("MONITOR_CONFIG_FILE"); monitorConfigFile == "" {
+		monitorConfigFile = SeeleConfig.MonitorConfigFile
+	}
+
 	shardConfig, err := GetConfigFromFile(monitorConfigFile)
 	if err != nil {
 		fmt.Println(err.Error())

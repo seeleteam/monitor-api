@@ -9,6 +9,13 @@
 			"revisionTime": "2017-09-18T01:28:23Z"
 		},
 		{
+			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
+			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
+		},
+		{
 			"checksumSHA1": "f2Asra5yXCMDxwx/TF6m4h3ZqOw=",
 			"origin": "github.com/seeleteam/go-seele/vendor/github.com/ethereum/go-ethereum/rlp",
 			"path": "github.com/ethereum/go-ethereum/rlp",
@@ -142,6 +149,13 @@
 			"revisionTime": "2018-03-11T21:45:15Z"
 		},
 		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"origin": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
+		},
+		{
 			"checksumSHA1": "/jrPYC6jxg8mtWFFhMT5TyOowEM=",
 			"path": "github.com/rifflock/lfshook",
 			"revision": "62f5e0662816a462697d29f396fd19376d17f65b",
@@ -164,6 +178,30 @@
 			"path": "github.com/sirupsen/logrus",
 			"revision": "778f2e774c725116edbc3d039dc0dfc1cc62aae8",
 			"revisionTime": "2018-03-29T22:59:52Z"
+		},
+		{
+			"checksumSHA1": "D7hWCay3XKO5RjeVj7C1ACkHk6s=",
+			"path": "github.com/spf13/cobra",
+			"revision": "ef82de70bb3f60c65fb8eebacbb2d122ef517385",
+			"revisionTime": "2018-04-27T13:45:50Z"
+		},
+		{
+			"checksumSHA1": "fTUB2LRINzrW2q0Wp5h9VILSu6A=",
+			"path": "github.com/spf13/pflag",
+			"revision": "583c0c0531f06d5278b7d917446061adc344b5cd",
+			"revisionTime": "2018-04-12T12:09:13Z"
+		},
+		{
+			"checksumSHA1": "OMAKAu5bUX4xb+i9F3jgl3Ndvog=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
+		},
+		{
+			"checksumSHA1": "KWQTaHs1pGaPaKJecRYRLq9fCyw=",
+			"path": "github.com/stretchr/testify/require",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
 		},
 		{
 			"checksumSHA1": "1eWunX4cKZHVf/biJG9iEgKZXCw=",
