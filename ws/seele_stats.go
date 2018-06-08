@@ -255,6 +255,8 @@ type nodeInfo struct {
 	OsVer       string `json:"os_v"`
 	Client      string `json:"client"`
 	NodeVersion string `json:"nodeVersion"` // the monitor api client version
+	NetVersion  uint64 `json:"netVersion"`
+	Shard       uint   `json:"shard"`
 }
 
 // nodeStats is the information about the local node.
@@ -284,9 +286,7 @@ func (s *Service) report(conn *websocket.Conn) error {
 	if err := s.reportLatency(conn); err != nil {
 		return err
 	}
-	if err := s.reportNodeInfo(conn); err != nil {
-		return err
-	}
+
 	if err := s.reportNodeStats(conn); err != nil {
 		return err
 	}
@@ -391,6 +391,11 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 		s.detectErrorAndReport(conn)
 		return nil, err
 	}
+
+	// update netVersion
+	s.currentNetVersion = info.NetVersion
+	s.shard = info.Shard
+
 	nodeInfoData := nodeInfo{
 		Name:        config.APPName,
 		NodeVersion: config.VERSION,
@@ -401,17 +406,13 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 		OsVer:       info.OsVer,
 		Client:      info.Client,
 		API:         info.Protocol,
+		NetVersion:  s.currentNetVersion,
+		Shard:       s.shard,
 	}
 
-	// update netVersion
-	s.currentNetVersion = info.NetVersion
-	s.shard = info.Shard
-
 	nodeInfo := map[string]interface{}{
-		"id":         s.node,
-		"info":       nodeInfoData,
-		"netVersion": s.currentNetVersion,
-		"shard":      s.shard,
+		"id":   s.node,
+		"info": nodeInfoData,
 	}
 
 	return nodeInfo, nil
