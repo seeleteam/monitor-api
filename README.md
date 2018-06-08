@@ -38,6 +38,25 @@ make
 build/monitor-api start -c <configfile>
 ```
 
+## Warn
+
+1. default app.conf and monitor.json should be in *the same config dir*, the structure should be like `monitor-api`, `config/app.conf`, `config/monitor.json`
+2. if set env `MONITOR_CONFIG_FILE` the MonitorConfigFile in `app.conf` will be override!
+
+## Docker
+
+### build
+
+```bash
+docker build --rm -f Dockerfile -t monitor-api:latest .
+```
+
+### run
+
+```bash
+docker run -v <your app.conf directory>:/monitor-api/config:ro -it monitor-api
+```
+
 ## Config
 
 ```text

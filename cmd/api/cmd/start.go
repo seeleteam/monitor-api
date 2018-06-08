@@ -9,11 +9,10 @@ import (
 	"log"
 	"sync"
 
-	"github.com/seeleteam/monitor-api/config"
-
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/seeleteam/monitor-api/config"
 	"github.com/seeleteam/monitor-api/server"
 )
 
@@ -27,7 +26,7 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start the monitor-api server",
 	Long: `usage example:
-	   monitor-api.exe start -c cmd\app.conf
+	   monitor-api.exe start -c config\app.conf
 		start the monitor-api.`,
 
 	Run: func(cmd *cobra.Command, args []string) {

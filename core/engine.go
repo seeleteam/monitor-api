@@ -7,8 +7,10 @@ package core
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/aviddiviner/gin-limit"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"github.com/seeleteam/monitor-api/api/routers"
@@ -45,6 +47,15 @@ func (config *EngineConfig) initEngineConfig() *gin.Engine {
 
 	// use recovery middleware
 	e.Use(gin.Recovery())
+
+	corsConfig := cors.Config{
+		AllowMethods:     []string{"GET", "POST", "PUT", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}
+	corsConfig.AllowAllOrigins = true
+	e.Use(cors.New(corsConfig))
 
 	// By default, http.ListenAndServe (which gin.Run wraps) will serve an unbounded number of requests.
 	// Limiting the number of simultaneous connections can sometimes greatly speed things up under load
