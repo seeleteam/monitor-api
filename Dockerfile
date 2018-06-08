@@ -27,4 +27,4 @@ ENTRYPOINT [ "/monitor-api/monitor-api", "start", "-c=/monitor-api/config/app.co
 
 # start monitor-api with your 'app.conf' file, this file must be external from a volume
 # For example:
-#   docker run -v <your app.conf path>:/monitor-api/config/app.conf:ro -it monitor-api
+#   docker run -v <your app.conf directory>:/monitor-api/config:ro -it monitor-api

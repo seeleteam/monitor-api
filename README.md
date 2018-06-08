@@ -54,7 +54,7 @@ docker build --rm -f Dockerfile -t monitor-api:latest .
 ### run
 
 ```bash
-docker run -v <your app.conf path>:/monitor-api/config:ro -it monitor-api
+docker run -v <your app.conf directory>:/monitor-api/config:ro -it monitor-api
 ```
 
 ## Config
