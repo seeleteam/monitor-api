@@ -62,12 +62,7 @@ ErrContinue:
 
 	}
 	shard := info.Shard
-	websocketURL, ok := config.ShardMap[fmt.Sprintf("%v", shard)]
-	if !ok {
-		logs.Error("shard config error, shard %v not exist in monitor.json", shard)
-		time.Sleep(5 * time.Second)
-		goto ErrContinue
-	}
+	websocketURL, _ := config.ShardMap[fmt.Sprintf("%v", shard)]
 	if websocketURL == "" {
 		logs.Error("shard config error, shard %v exist error web socket url", shard)
 		return nil, err
