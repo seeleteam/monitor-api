@@ -24,7 +24,7 @@ const (
 	defaultLogPath = "monitor-api-logs"
 )
 
-var defaultLogFile = "monitor-api-all.logs"
+var defaultLogFile = "monitor-api.logs"
 
 // NewLogger create the logrus.Logger with special config
 func NewLogger() *logrus.Logger {
