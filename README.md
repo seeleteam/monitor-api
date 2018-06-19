@@ -11,7 +11,7 @@ go 1.10+
 ## Project structure
 
 ```text
-├── api: api interface
+┌── api: api interface
 │   ├── filters:  request filter
 │   ├── handlers: router handler
 │   └── routers:  the http router
@@ -35,13 +35,25 @@ cd monitor-api
 # generate the executable file
 make
 # execute the file
-build/monitor-api start -c <configfile>
+./monitor-api start
+
+or
+
+./monitor-api start -c <configfile>
 ```
 
 ## Warn
 
-1. default app.conf and monitor.json should be in *the same config dir*, the structure should be like `monitor-api`, `config/app.conf`, `config/monitor.json`
-2. if set env `MONITOR_CONFIG_FILE` the MonitorConfigFile in `app.conf` will be override!
+- default app.conf and monitor.json should be in *the same config dir*, the structure should be like
+
+```text
+┌── monitor-api
+│   └── config
+│       ├── app.conf
+│       └── monitor.json
+```
+
+- if set env `MONITOR_CONFIG_FILE` the MonitorConfigFile in `app.conf` will be override!
 
 ## Docker
 
@@ -76,9 +88,6 @@ DisableConsoleColor = false
 
 # enable write log out
 WriteLog = true
-
-# websocket server address, format ip:port
-WsURL = :9997
 
 # web socket api
 WsRouter = /api

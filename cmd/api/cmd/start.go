@@ -49,7 +49,5 @@ var startCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-
-	configFile = startCmd.Flags().StringP("config", "c", "", "api config file (required)")
-	startCmd.MarkFlagRequired("config")
+	configFile = startCmd.Flags().StringP("config", "c", "./config/app.conf", "api config file")
 }
