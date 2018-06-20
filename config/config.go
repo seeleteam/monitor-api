@@ -244,19 +244,19 @@ func assignConfig(ac config.Configure) error {
 			currentServerConfig.ReadTimeout = currentReadTimeout
 		}
 	}
-	if currentSection["readheadertimeout "] != "" {
+	if currentSection["readheadertimeout"] != "" {
 		currentReadHeaderTimeout, err := time.ParseDuration(currentSection["readheadertimeout"] + DefaultTimeUnit)
 		if err == nil {
 			currentServerConfig.ReadHeaderTimeout = currentReadHeaderTimeout
 		}
 	}
-	if currentSection["writetimeout "] != "" {
+	if currentSection["writetimeout"] != "" {
 		currentWriteTimeout, err := time.ParseDuration(currentSection["writetimeout"] + DefaultTimeUnit)
 		if err == nil {
 			currentServerConfig.WriteTimeout = currentWriteTimeout
 		}
 	}
-	if currentSection["idletimeout "] != "" {
+	if currentSection["idletimeout"] != "" {
 		currentIdleTimeout, err := time.ParseDuration(currentSection["idletimeout"] + DefaultTimeUnit)
 		if err == nil {
 			currentServerConfig.IdleTimeout = currentIdleTimeout

@@ -53,10 +53,13 @@ type Service struct {
 // New returns a monitoring service ready for stats reporting.
 func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
 	// first get RPC NodeInfo and according the Shard choose the ws path
+ErrContinue:
 	info, err := rpc.NodeInfo()
 	if err != nil {
 		logs.Error("rpc getNodeInfo error %v", err)
-		return nil, err
+		time.Sleep(5 * time.Second)
+		goto ErrContinue
+
 	}
 	shard := info.Shard
 	websocketURL, _ := config.ShardMap[fmt.Sprintf("%v", shard)]
@@ -64,7 +67,6 @@ func New(url string, rpc *rpc.MonitorRPC) (*Service, error) {
 		logs.Error("shard config error, shard %v exist error web socket url", shard)
 		return nil, err
 	}
-
 	// Parse the web socket connection url
 	if url == "" {
 		//addr format should be host:port!

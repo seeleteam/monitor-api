@@ -22,8 +22,9 @@ var logs *logrus.Logger
 
 const (
 	defaultLogPath = "monitor-api-logs"
-	defaultLogFile = "monitor-api-all.logs"
 )
+
+var defaultLogFile = "monitor-api.logs"
 
 // NewLogger create the logrus.Logger with special config
 func NewLogger() *logrus.Logger {
@@ -40,6 +41,10 @@ func NewLogger() *logrus.Logger {
 	writeLog := config.SeeleConfig.ServerConfig.EngineConfig.WriteLog
 	if writeLog {
 		_ = os.Mkdir(defaultLogPath, 0777)
+		defaultLogFile1 := config.SeeleConfig.ServerConfig.EngineConfig.LogFile
+		if defaultLogFile1 != "" {
+			defaultLogFile = defaultLogFile1
+		}
 
 		path := defaultLogPath + string(os.PathSeparator) + defaultLogFile
 		writer, err := rotatelogs.New(
@@ -64,12 +69,13 @@ func NewLogger() *logrus.Logger {
 			&logrus.JSONFormatter{},
 		))
 
+		separatedpath := defaultLogPath + string(os.PathSeparator) + strings.TrimRight(defaultLogFile, ".log")
 		pathMap := lfshook.PathMap{
-			logrus.DebugLevel: fmt.Sprintf("%s/debug.log", defaultLogPath),
-			logrus.InfoLevel:  fmt.Sprintf("%s/info.log", defaultLogPath),
-			logrus.WarnLevel:  fmt.Sprintf("%s/warn.log", defaultLogPath),
-			logrus.ErrorLevel: fmt.Sprintf("%s/error.log", defaultLogPath),
-			logrus.FatalLevel: fmt.Sprintf("%s/fatal.log", defaultLogPath),
+			logrus.DebugLevel: fmt.Sprintf("%s-debug.log", separatedpath),
+			logrus.InfoLevel:  fmt.Sprintf("%s-info.log", separatedpath),
+			logrus.WarnLevel:  fmt.Sprintf("%s-warn.log", separatedpath),
+			logrus.ErrorLevel: fmt.Sprintf("%s-error.log", separatedpath),
+			logrus.FatalLevel: fmt.Sprintf("%s-fatal.log", separatedpath),
 		}
 		logs.AddHook(lfshook.NewHook(
 			pathMap,
