@@ -7,6 +7,7 @@ package core
 
 import (
 	"net/http"
+	"os"
 
 	"golang.org/x/sync/errgroup"
 
@@ -47,6 +48,7 @@ func GetServer(g *errgroup.Group, handlerConfig ...*EngineConfig) (slServer *Mon
 			DisableConsoleColor: defaultEngineConfig.DisableConsoleColor,
 			WriteLog:            defaultEngineConfig.WriteLog,
 			LogFile:             defaultEngineConfig.LogFile,
+			TempFolder:          defaultEngineConfig.TempFolder,
 			LimitConnections:    defaultEngineConfig.LimitConnection,
 		}
 	} else {
@@ -54,6 +56,19 @@ func GetServer(g *errgroup.Group, handlerConfig ...*EngineConfig) (slServer *Mon
 		// if writeLog = true(write logs to file), set disableConsoleColor = true
 		writeLog := handlerConfig[0].WriteLog
 		logFile := handlerConfig[0].LogFile
+		tempFloder := handlerConfig[0].TempFolder
+		if tempFloder == "" {
+			tempFloder = defaultEngineConfig.TempFolder
+		}
+
+		s, err := os.Stat(tempFloder)
+		if err != nil {
+			logs.Fatal("error tempFloder %v", err)
+		}
+		if !s.IsDir() {
+			logs.Fatal("tempFloder %v is not dir", tempFloder)
+		}
+
 		disableConsoleColor := handlerConfig[0].DisableConsoleColor
 		if writeLog {
 			if len(logFile) == 0 {
@@ -70,6 +85,7 @@ func GetServer(g *errgroup.Group, handlerConfig ...*EngineConfig) (slServer *Mon
 		currentEngineConfig = &EngineConfig{
 			DisableConsoleColor: disableConsoleColor,
 			WriteLog:            writeLog,
+			TempFolder:          tempFloder,
 			LogFile:             logFile,
 			LimitConnections:    limitConnections,
 		}

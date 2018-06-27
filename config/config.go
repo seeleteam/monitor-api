@@ -68,6 +68,7 @@ type ServerConfig struct {
 type EngineConfig struct {
 	DisableConsoleColor bool
 	LimitConnection     int
+	TempFolder          string
 	LogFile             string
 	WriteLog            bool
 }
@@ -156,6 +157,7 @@ func newSeeleConfig() *Config {
 			EngineConfig: &EngineConfig{
 				DisableConsoleColor: false,
 				WriteLog:            false,
+				TempFolder:          os.TempDir(),
 				LogFile:             APPName + ".log",
 				LimitConnection:     0, // no limits the conn per timeUnit
 			},
@@ -211,12 +213,17 @@ func assignConfig(ac config.Configure) error {
 	// APPName load from default, default section, real section
 	currentAppName := APPName
 	monitorConfigFile := "monitor.json"
+	tempFolder := os.TempDir()
+
 	if defaultSection, err := ac.GetSection("default"); err == nil {
 		if len(defaultSection["app_name"]) != 0 {
 			currentAppName = defaultSection["app_name"]
 		}
 		if len(defaultSection["monitorconfigfile"]) != 0 {
 			monitorConfigFile = defaultSection["monitorconfigfile"]
+		}
+		if len(defaultSection["tempfolder"]) != 0 {
+			tempFolder = defaultSection["tempfolder"]
 		}
 	}
 	SeeleConfig.MonitorConfigFile = monitorConfigFile
@@ -341,10 +348,7 @@ func assignConfig(ac config.Configure) error {
 			currentRPCConfig := currentServerConfig.RPCConfig
 			if currentRPCConfig != nil {
 				if currentSection["rpcurl"] != "" {
-					currentRPCURL := currentSection["rpcurl"]
-					if err == nil {
-						currentRPCConfig.URL = currentRPCURL
-					}
+					currentRPCConfig.URL = currentSection["rpcurl"]
 				}
 				currentServerConfig.RPCConfig = currentRPCConfig
 			}
@@ -375,6 +379,10 @@ func assignConfig(ac config.Configure) error {
 				}
 			}
 		}
+		if currentSection["tempfolder"] != "" {
+			tempFolder = currentSection["tempfolder"]
+		}
+		currentEngineConfig.TempFolder = tempFolder
 		currentServerConfig.EngineConfig = currentEngineConfig
 	}
 
