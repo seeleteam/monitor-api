@@ -8,6 +8,7 @@ package logs
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -40,22 +41,21 @@ func NewLogger() *logrus.Logger {
 
 	writeLog := config.SeeleConfig.ServerConfig.EngineConfig.WriteLog
 	if writeLog {
-		_ = os.Mkdir(defaultLogPath, 0777)
-		defaultLogFile1 := config.SeeleConfig.ServerConfig.EngineConfig.LogFile
-		if defaultLogFile1 != "" {
-			defaultLogFile = defaultLogFile1
+		storeFilePath := filepath.Join(config.SeeleConfig.ServerConfig.EngineConfig.TempFolder, defaultLogPath)
+		err := os.MkdirAll(storeFilePath, os.ModePerm)
+		if err != nil {
+			panic(fmt.Sprintf("creating log file failed: %s", err.Error()))
 		}
-
-		path := defaultLogPath + string(os.PathSeparator) + defaultLogFile
+		defaultLogFile1 := config.SeeleConfig.ServerConfig.EngineConfig.LogFile
+		path := filepath.Join(storeFilePath, defaultLogFile1)
 		writer, err := rotatelogs.New(
 			path+".%Y%m%d%H%M",
-			rotatelogs.WithLinkName(path),
-			rotatelogs.WithMaxAge(time.Duration(86400)*time.Second),       // 24 hours
-			rotatelogs.WithRotationTime(time.Duration(86400)*time.Second), // 1 days
+			rotatelogs.WithClock(rotatelogs.Local),
+			rotatelogs.WithMaxAge(time.Duration(7*24)*time.Hour),
+			rotatelogs.WithRotationTime(time.Duration(24)*time.Hour),
 		)
 		if err != nil {
-			logs.Error(err.Error())
-			return nil
+			panic(fmt.Sprintf("rotatelogs log failed: %s", err.Error()))
 		}
 
 		logs.AddHook(lfshook.NewHook(
@@ -66,10 +66,10 @@ func NewLogger() *logrus.Logger {
 				logrus.ErrorLevel: writer,
 				logrus.FatalLevel: writer,
 			},
-			&logrus.JSONFormatter{},
+			&logrus.TextFormatter{},
 		))
 
-		separatedpath := defaultLogPath + string(os.PathSeparator) + strings.TrimRight(defaultLogFile, ".log")
+		separatedpath := filepath.Join(storeFilePath, strings.TrimRight(defaultLogFile1, ".log"))
 		pathMap := lfshook.PathMap{
 			logrus.DebugLevel: fmt.Sprintf("%s-debug.log", separatedpath),
 			logrus.InfoLevel:  fmt.Sprintf("%s-info.log", separatedpath),

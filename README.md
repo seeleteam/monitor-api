@@ -34,6 +34,9 @@ go 1.10+
 cd monitor-api
 # generate the executable file
 make
+
+# in windows you should use ./buildall.bat replace
+
 # execute the file
 ./monitor-api start
 
@@ -76,6 +79,9 @@ run_mode = dev
 
 # http server address, format ip:port
 addr = :9997
+
+# the path store temp files, like log
+TempFolder = ""
 
 LimitConnection = 0
 

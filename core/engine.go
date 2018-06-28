@@ -22,6 +22,7 @@ type EngineConfig struct {
 	DisableConsoleColor bool // disable the console color
 	WriteLog            bool
 	LogFile             string
+	TempFolder          string
 	LimitConnections    int
 	Routers             []gin.IRoutes
 }
