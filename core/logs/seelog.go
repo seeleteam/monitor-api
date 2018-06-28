@@ -50,7 +50,7 @@ func NewLogger() *logrus.Logger {
 		path := filepath.Join(storeFilePath, defaultLogFile1)
 		writer, err := rotatelogs.New(
 			path+".%Y%m%d%H%M",
-			rotatelogs.WithLinkName(path),
+			rotatelogs.WithClock(rotatelogs.Local),
 			rotatelogs.WithMaxAge(time.Duration(7*24)*time.Hour),
 			rotatelogs.WithRotationTime(time.Duration(24)*time.Hour),
 		)
