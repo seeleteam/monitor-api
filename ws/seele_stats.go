@@ -90,7 +90,7 @@ ErrContinue:
 		return nil, err
 	}
 	wsPath := fmt.Sprintf("%s%s", websocketURL, wsRouter)
-	logs.Debug("shard %v, wsPath is %v", shard, wsPath)
+	logs.Debug("init shard %v, wsPath is %v", shard, wsPath)
 	host := parts[0]
 
 	// name: INSTANCE_NAME || os.hostname()
@@ -128,6 +128,19 @@ func (s *Service) Start() {
 func (s *Service) loop() {
 	// Loop reporting until termination
 	for {
+		info, err := s.rpc.NodeInfo()
+		if err != nil {
+			logs.Error("rpc getNodeInfo error %v", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		shard := info.Shard
+		websocketURL, _ := config.ShardMap[fmt.Sprintf("%v", shard)]
+
+		wsPath := fmt.Sprintf("%s%s", websocketURL, s.wsRouter)
+		s.wsPath = wsPath
+		logs.Debug("now shard %v, wsPath %v", shard, wsPath)
+
 		// Resolve the URL, defaulting to TLS, but falling back to none too
 		path := fmt.Sprintf("%s", s.wsPath)
 		urls := []string{path}
@@ -140,7 +153,6 @@ func (s *Service) loop() {
 		var (
 			conf *websocket.Config
 			conn *websocket.Conn
-			err  error
 		)
 		for _, url := range urls {
 			if conf, err = websocket.NewConfig(url, "http://localhost/"); err != nil {
