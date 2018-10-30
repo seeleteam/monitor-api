@@ -29,11 +29,11 @@ type NodeInfo struct {
 
 // NodeStats is the information about the local node.
 type NodeStats struct {
-	Active   bool `json:"active"`
-	Syncing  bool `json:"syncing"`
-	Mining   bool `json:"mining"`
-	Hashrate int  `json:"hashrate"`
-	Peers    int  `json:"peers"`
+	Active   bool   `json:"active"`
+	Syncing  bool   `json:"syncing"`
+	Mining   bool   `json:"mining"`
+	Hashrate uint64 `json:"hashrate"`
+	Peers    int    `json:"peers"`
 }
 
 // CurrentBlock is the informations about the best block

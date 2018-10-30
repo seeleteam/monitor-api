@@ -11,13 +11,23 @@ import (
 
 // NodeStats returns the current node info.
 func (rpc *MonitorRPC) NodeStats() (nodeStats *NodeStats, err error) {
-	err = rpc.call("monitor.NodeStats", nil, &nodeStats)
+	err = rpc.call("monitor_nodeStats", nil, &nodeStats)
+	if err != nil {
+		return
+	}
+
+	var hashrate uint64
+	err = rpc.call("miner_getHashrate", nil, &hashrate)
+	if err != nil {
+		return
+	}
+	nodeStats.Hashrate = hashrate
 	return nodeStats, err
 }
 
 // NodeInfo returns the current node info.
 func (rpc *MonitorRPC) NodeInfo() (nodeInfo *NodeInfo, err error) {
-	err = rpc.call("monitor.NodeInfo", nil, &nodeInfo)
+	err = rpc.call("monitor_nodeInfo", nil, &nodeInfo)
 	return nodeInfo, err
 }
 
@@ -28,7 +38,7 @@ func (rpc *MonitorRPC) CurrentBlock() (currentBlock *CurrentBlock, err error) {
 		FullTx: true,
 	}
 	rpcOutputBlock := make(map[string]interface{})
-	if err := rpc.call("seele.GetBlockByHeight", request, &rpcOutputBlock); err != nil {
+	if err := rpc.call("seele_getBlockByHeight", request, &rpcOutputBlock); err != nil {
 		return nil, err
 	}
 
@@ -49,7 +59,7 @@ func (rpc *MonitorRPC) CurrentBlock() (currentBlock *CurrentBlock, err error) {
 
 // GetInfo gets the account address that mining rewards will be send to.
 func (rpc *MonitorRPC) GetInfo() (result map[string]interface{}, err error) {
-	err = rpc.call("seele.GetInfo", nil, &result)
+	err = rpc.call("seele_getInfo", nil, &result)
 	if err != nil {
 		return nil, err
 	}
