@@ -47,7 +47,7 @@ type Service struct {
 	currentBlockHeight         uint64        // record the current block height, if rpc get the same block abort send
 	reportErrorAfterTimes      int           // report the error occur times (currentErrorTimes) when error occur over the special times
 	currentErrorTimes          int
-	currentNetVersion          uint64 // current net version(netWorkId)
+	currentNetVersion          string // current net version(netWorkId)
 }
 
 // New returns a monitoring service ready for stats reporting.
@@ -269,7 +269,7 @@ type nodeInfo struct {
 	OsVer       string `json:"os_v"`
 	Client      string `json:"client"`
 	NodeVersion string `json:"nodeVersion"` // the monitor api client version
-	NetVersion  uint64 `json:"netVersion"`
+	NetVersion  string `json:"netVersion"`
 	Shard       uint   `json:"shard"`
 }
 
