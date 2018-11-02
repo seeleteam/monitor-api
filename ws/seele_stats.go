@@ -459,7 +459,7 @@ func (s *Service) reportCurrentBlock(conn *websocket.Conn) error {
 func (s *Service) getCurrentBlockInfo(conn *websocket.Conn) (map[string]interface{}, error) {
 	block, err := s.rpc.CurrentBlock(-1, true)
 	if err != nil {
-		logs.Error("-rpc getCurrentBlockInfo error %v", err)
+		logs.Error("rpc getCurrentBlockInfo error %v", err)
 		s.detectErrorAndReport(conn)
 		return nil, err
 	}
