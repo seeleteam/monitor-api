@@ -65,7 +65,6 @@ func (r *jsonRequest) UnmarshalJSON(raw []byte) error {
 	if err := json.Unmarshal(raw, req(r)); err != nil {
 		return errors.New("bad request")
 	}
-
 	var reqMap = make(map[string]*json.RawMessage)
 	if err := json.Unmarshal(raw, &reqMap); err != nil {
 		return errors.New("bad request")

@@ -457,7 +457,7 @@ func (s *Service) reportCurrentBlock(conn *websocket.Conn) error {
 }
 
 func (s *Service) getCurrentBlockInfo(conn *websocket.Conn) (map[string]interface{}, error) {
-	block, err := s.rpc.CurrentBlock()
+	block, err := s.rpc.CurrentBlock(-1, true)
 	if err != nil {
 		logs.Error("rpc getCurrentBlockInfo error %v", err)
 		s.detectErrorAndReport(conn)
@@ -484,7 +484,6 @@ func (s *Service) getCurrentBlockInfo(conn *websocket.Conn) (map[string]interfac
 // reportCurrentBlockInfo retrieves various stats about the node at the networking and
 // mining layer and reports it to the stats server.
 func (s *Service) reportCurrentBlockInfo(conn *websocket.Conn) error {
-
 	blockInfo, err := s.getCurrentBlockInfo(conn)
 	if err != nil {
 		logs.Error("rpc reportCurrentBlockInfo error %v", err)

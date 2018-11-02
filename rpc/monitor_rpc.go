@@ -32,29 +32,36 @@ func (rpc *MonitorRPC) NodeInfo() (nodeInfo *NodeInfo, err error) {
 }
 
 // CurrentBlock returns the current block info.
-func (rpc *MonitorRPC) CurrentBlock() (currentBlock *CurrentBlock, err error) {
+func (rpc *MonitorRPC) CurrentBlock(h int64, fullTx bool) (currentBlock *CurrentBlock, err error) {
 	request := GetBlockByHeightRequest{
-		Height: -1,
-		FullTx: true,
+		Height: h,
+		FullTx: fullTx,
 	}
+	var req []interface{}
+	req = append(req, request.Height)
+	req = append(req, request.FullTx)
 	rpcOutputBlock := make(map[string]interface{})
-	if err := rpc.call("seele_getBlockByHeight", request, &rpcOutputBlock); err != nil {
+	if err := rpc.call("seele_getBlockByHeight", req, &rpcOutputBlock); err != nil {
 		return nil, err
 	}
 
-	timestamp := int64(rpcOutputBlock["timestamp"].(float64))
-	difficulty := int64(rpcOutputBlock["difficulty"].(float64))
-	height := uint64(rpcOutputBlock["height"].(float64))
+	return getBlockByHeight(rpcOutputBlock, fullTx), err
+}
+func getBlockByHeight(rpcOutputBlock map[string]interface{}, fullTx bool) *CurrentBlock {
+	headerMp := rpcOutputBlock["header"].(map[string]interface{})
+	timestamp := int64(headerMp["CreateTimestamp"].(float64))
+	difficulty := int64(headerMp["Difficulty"].(float64))
+	height := uint64(headerMp["Height"].(float64))
+	creator := headerMp["Creator"].(string)
 
-	currentBlock = &CurrentBlock{
+	return &CurrentBlock{
 		HeadHash:   rpcOutputBlock["hash"].(string),
 		Height:     height,
 		Timestamp:  big.NewInt(timestamp),
 		Difficulty: big.NewInt(difficulty),
-		Creator:    rpcOutputBlock["creator"].(string),
+		Creator:    creator,
 		TxCount:    len(rpcOutputBlock["transactions"].([]interface{})),
 	}
-	return currentBlock, err
 }
 
 // GetInfo gets the account address that mining rewards will be send to.
