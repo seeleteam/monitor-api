@@ -450,16 +450,18 @@ func (s *Service) getNodeStats(conn *websocket.Conn) (map[string]interface{}, er
 }
 
 func (s *Service) reportCurrentBlock(conn *websocket.Conn) error {
+	fmt.Println(000000000000000000000000)
 	if err := s.reportCurrentBlockInfo(conn); err != nil {
+		fmt.Println(000000000000000000000000111111111111)
 		return err
 	}
 	return nil
 }
 
 func (s *Service) getCurrentBlockInfo(conn *websocket.Conn) (map[string]interface{}, error) {
-	block, err := s.rpc.CurrentBlock()
+	block, err := s.rpc.CurrentBlock(-1, true)
 	if err != nil {
-		logs.Error("rpc getCurrentBlockInfo error %v", err)
+		logs.Error("-rpc getCurrentBlockInfo error %v", err)
 		s.detectErrorAndReport(conn)
 		return nil, err
 	}
@@ -484,7 +486,6 @@ func (s *Service) getCurrentBlockInfo(conn *websocket.Conn) (map[string]interfac
 // reportCurrentBlockInfo retrieves various stats about the node at the networking and
 // mining layer and reports it to the stats server.
 func (s *Service) reportCurrentBlockInfo(conn *websocket.Conn) error {
-
 	blockInfo, err := s.getCurrentBlockInfo(conn)
 	if err != nil {
 		logs.Error("rpc reportCurrentBlockInfo error %v", err)
@@ -509,6 +510,7 @@ func (s *Service) reportCurrentBlockInfo(conn *websocket.Conn) error {
 // reportAllNodeInfo send this info to monitor, the first start conn or reconnect
 func (s *Service) reportAllNodeInfo(conn *websocket.Conn) error {
 	// nodeInfo must come first
+	fmt.Println()
 	info, err := s.getNodeInfo(conn)
 	if err != nil {
 		logs.Error("reportAllNodeInfo %v", err)
