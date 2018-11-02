@@ -450,9 +450,7 @@ func (s *Service) getNodeStats(conn *websocket.Conn) (map[string]interface{}, er
 }
 
 func (s *Service) reportCurrentBlock(conn *websocket.Conn) error {
-	fmt.Println(000000000000000000000000)
 	if err := s.reportCurrentBlockInfo(conn); err != nil {
-		fmt.Println(000000000000000000000000111111111111)
 		return err
 	}
 	return nil
@@ -510,7 +508,6 @@ func (s *Service) reportCurrentBlockInfo(conn *websocket.Conn) error {
 // reportAllNodeInfo send this info to monitor, the first start conn or reconnect
 func (s *Service) reportAllNodeInfo(conn *websocket.Conn) error {
 	// nodeInfo must come first
-	fmt.Println()
 	info, err := s.getNodeInfo(conn)
 	if err != nil {
 		logs.Error("reportAllNodeInfo %v", err)
