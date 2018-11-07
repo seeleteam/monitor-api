@@ -47,7 +47,7 @@ type Service struct {
 	currentBlockHeight         uint64        // record the current block height, if rpc get the same block abort send
 	reportErrorAfterTimes      int           // report the error occur times (currentErrorTimes) when error occur over the special times
 	currentErrorTimes          int
-	currentNetVersion          string // current net version(netWorkId)
+	currentNetVersion          uint64 // current net version(netWorkId)
 }
 
 // New returns a monitoring service ready for stats reporting.
@@ -62,6 +62,8 @@ ErrContinue:
 
 	}
 	shard := info.Shard
+
+	version, err := strconv.ParseUint(info.NetVersion, 10, 64)
 	websocketURL, _ := config.ShardMap[fmt.Sprintf("%v", shard)]
 	if websocketURL == "" {
 		logs.Error("shard config error, shard %v exist error web socket url", shard)
@@ -114,7 +116,7 @@ ErrContinue:
 		delayReConnTime:            currentWebSocketConfig.DelayReConnTime,
 		delaySendTime:              currentWebSocketConfig.DelaySendTime,
 		reportErrorAfterTimes:      currentWebSocketConfig.ReportErrorAfterTimes,
-		currentNetVersion:          info.NetVersion,
+		currentNetVersion:          version,
 	}, nil
 }
 
@@ -407,7 +409,8 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 	}
 
 	// update netVersion
-	s.currentNetVersion = info.NetVersion
+	version, err := strconv.ParseUint(info.NetVersion, 10, 64)
+	s.currentNetVersion = version
 	s.shard = info.Shard
 
 	nodeInfoData := nodeInfo{
@@ -420,7 +423,7 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 		OsVer:       info.OsVer,
 		Client:      info.Client,
 		API:         info.Protocol,
-		NetVersion:  s.currentNetVersion,
+		NetVersion:  info.NetVersion,
 		Shard:       s.shard,
 	}
 
