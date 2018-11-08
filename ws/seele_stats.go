@@ -63,7 +63,11 @@ ErrContinue:
 	}
 	shard := info.Shard
 
-	version, err := strconv.ParseUint(info.NetVersion, 10, 64)
+	version, err := strconv.ParseFloat(info.NetVersion, 10)
+	if err != nil {
+		logs.Warn("netversion err %s", err.Error())
+		return nil, err
+	}
 	websocketURL, _ := config.ShardMap[fmt.Sprintf("%v", shard)]
 	if websocketURL == "" {
 		logs.Error("shard config error, shard %v exist error web socket url", shard)
@@ -116,7 +120,7 @@ ErrContinue:
 		delayReConnTime:            currentWebSocketConfig.DelayReConnTime,
 		delaySendTime:              currentWebSocketConfig.DelaySendTime,
 		reportErrorAfterTimes:      currentWebSocketConfig.ReportErrorAfterTimes,
-		currentNetVersion:          version,
+		currentNetVersion:          uint64(version),
 	}, nil
 }
 
@@ -423,8 +427,12 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 	}
 
 	// update netVersion
-	version, err := strconv.ParseUint(info.NetVersion, 10, 64)
-	s.currentNetVersion = version
+	version, err := strconv.ParseFloat(info.NetVersion, 10)
+	if err != nil {
+		logs.Warn("netversion err %s", err.Error())
+		return nil, err
+	}
+	s.currentNetVersion = uint64(version)
 	s.shard = info.Shard
 
 	nodeInfoData := nodeInfo1{
@@ -437,7 +445,7 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 		OsVer:       info.OsVer,
 		Client:      info.Client,
 		API:         info.Protocol,
-		NetVersion:  version,
+		NetVersion:  uint64(version),
 		Shard:       s.shard,
 	}
 
