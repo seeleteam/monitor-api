@@ -275,6 +275,20 @@ type nodeInfo struct {
 	Shard       uint   `json:"shard"`
 }
 
+type nodeInfo1 struct {
+	Name        string `json:"name"`
+	Node        string `json:"node"`
+	Port        int    `json:"port"` // the monitor api client port, can overwrite use monitor api client api port
+	Protocol    string `json:"protocol"`
+	API         string `json:"api"`
+	Os          string `json:"os"`
+	OsVer       string `json:"os_v"`
+	Client      string `json:"client"`
+	NodeVersion string `json:"nodeVersion"` // the monitor api client version
+	NetVersion  uint64 `json:"netVersion"`
+	Shard       uint   `json:"shard"`
+}
+
 // nodeStats is the information about the local node.
 type nodeStats struct {
 	Active   bool `json:"active"`
@@ -413,7 +427,7 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 	s.currentNetVersion = version
 	s.shard = info.Shard
 
-	nodeInfoData := nodeInfo{
+	nodeInfoData := nodeInfo1{
 		Name:        config.APPName,
 		NodeVersion: config.VERSION,
 		Node:        info.Node,
@@ -423,7 +437,7 @@ func (s *Service) getNodeInfo(conn *websocket.Conn) (map[string]interface{}, err
 		OsVer:       info.OsVer,
 		Client:      info.Client,
 		API:         info.Protocol,
-		NetVersion:  info.NetVersion,
+		NetVersion:  version,
 		Shard:       s.shard,
 	}
 
